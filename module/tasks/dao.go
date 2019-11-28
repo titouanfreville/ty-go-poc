@@ -27,6 +27,7 @@ func Insert(tsk *Task, db *sqlx.DB) *core.TYPoc {
 	if err := tsk.IsValid(db); err != nil {
 		return err
 	}
+	tsk.BeforeDB()
 
 	if _, exErr := db.NamedExec("INSERT INTO tasks (resume, content, reporter_id, worker_id) VALUES (:resume, :content, :reporter_id, :worker_id)", *tsk); exErr != nil {
 		log.Info(exErr)
@@ -50,6 +51,7 @@ func Update(tsk *Task, db *sqlx.DB) *core.TYPoc {
 		return err
 	}
 
+	tsk.BeforeDB()
 	if _, exErr := db.NamedExec("UPDATE tasks SET resume = :resume,  content = :content, reporter_id = :reporter_id, worker_id = :worker_id WHERE id = :id", *tsk); exErr != nil {
 		log.Info(exErr)
 		return core.NewDatastoreError("Task.USER", "query", exErr.Error())

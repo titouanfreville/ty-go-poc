@@ -8,6 +8,12 @@ import (
 	"io"
 )
 
+const (
+	TASK_BACKLOG     = 0
+	TASK_IN_PROGRESS = 1
+	TASK_DONE        = 2
+)
+
 // Task table model
 type Task struct {
 	Id         int64     `form:"-" json:"-" db:"id"`
@@ -17,6 +23,8 @@ type Task struct {
 	WorkerId   int64     `form:"worker_id" json:"worker_id" db:"worker_id"`
 	Reporter   user.User `form:"reporter" json:"reporter" db:"-"`
 	Worker     user.User `form:"worker" json:"worker" db:"-"`
+	Status     int64     `form:"-" json:"-" db:"status"`
+	StatusStr  string    `form:"status" json:"status" db:"status"`
 }
 
 // TaskList is a shortcut to a list of Task
@@ -38,6 +46,43 @@ func (t *Task) IsValid(db *sqlx.DB) *core.TYPoc {
 	return nil
 }
 
+// BeforeDB
+func (t *Task) BeforeDB() {
+	t.Status = convertStatus(t.StatusStr).(int64)
+}
+
+func statusFromInt(s int64) string {
+	switch s {
+	case TASK_IN_PROGRESS:
+		return "in_progress"
+	case TASK_DONE:
+		return "done"
+	default:
+		return "backlog"
+	}
+}
+
+func statusFromString(s string) int64 {
+	switch s {
+	case "in_progress":
+		return TASK_IN_PROGRESS
+	case "done":
+		return TASK_DONE
+	default:
+		return TASK_BACKLOG
+	}
+}
+
+func convertStatus(status interface{}) interface{} {
+	switch status.(type) {
+	case string:
+		return statusFromString(status.(string))
+	case int64:
+		return statusFromInt(status.(int64))
+	}
+	return nil
+}
+
 func (t *Task) Populate(db *sqlx.DB) {
 	if t.ReporterId != 0 {
 		t.Reporter = *user.GetOne(t.ReporterId, db)
@@ -49,6 +94,7 @@ func (t *Task) Populate(db *sqlx.DB) {
 	} else {
 		t.Worker = user.User{}
 	}
+	t.StatusStr = convertStatus(t.Status).(string)
 }
 
 // ToJson serializes the bot patch to json.

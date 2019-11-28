@@ -49,11 +49,12 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.tasks
 (
-    id       integer           NOT NULL,
-    resume   character varying NOT NULL,
-    content  text,
-    reporter integer,
-    worker   integer
+    id          integer           NOT NULL,
+    resume      character varying NOT NULL,
+    content     text,
+    reporter_id integer,
+    worker_id   integer,
+    status      integer           NOT NULL default 0
 );
 
 
