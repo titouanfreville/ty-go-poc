@@ -89,12 +89,11 @@ func basicRoutes(router *gin.Engine) {
 }
 
 // initRoute initialize all routes on correct routers
-func initRoute(router *gin.Engine) { // , admin *gin.RouterGroup
+func initRoute(router *gin.Engine) {
 	initMiddleware(router)
 	basicRoutes(router)
 	v1gr := router.Group("/v1")
-	v1.InitTestEndPoint(v1gr, DbStore)
-	// planningRoutes(router, admin *gin.RouterGroup)
+	v1.InitEndpoints(v1gr, DbStore)
 }
 
 // StartAPI initialise the api with provided host and port.

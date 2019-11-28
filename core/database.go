@@ -1,8 +1,8 @@
 package core
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
@@ -13,14 +13,14 @@ type DBStore struct {
 	pass   string
 	host   string
 	port   string
-	Db     *sql.DB
+	Db     *sqlx.DB
 }
 
 func (s *DBStore) connect() bool {
 	connStr := fmt.Sprintf(
 		"sslmode=disable user='%s' password='%s' host='%s' port='%s' dbname='%s'",
 		s.usr, s.pass, s.host, s.port, s.dbName)
-	db, err := sql.Open("postgres", connStr)
+	db, err := sqlx.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 		return false

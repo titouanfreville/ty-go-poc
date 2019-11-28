@@ -1,0 +1,96 @@
+package tasks
+
+import (
+	"encoding/json"
+	"github.com/jmoiron/sqlx"
+	"go_poc/core"
+	"go_poc/module/user"
+	"io"
+)
+
+// Task table model
+type Task struct {
+	Id         int64     `form:"-" json:"-" db:"id"`
+	Resume     string    `form:"resume" json:"resume" db:"resume"`
+	Content    string    `form:"content" json:"content" db:"content"`
+	ReporterId int64     `form:"reporter_id" json:"reporter_id" db:"reporter_id"`
+	WorkerId   int64     `form:"worker_id" json:"worker_id" db:"worker_id"`
+	Reporter   user.User `form:"reporter" json:"reporter" db:"-"`
+	Worker     user.User `form:"worker" json:"worker" db:"-"`
+}
+
+// TaskList is a shortcut to a list of Task
+type TaskList []*Task
+
+// IsValid check if Task object is valid
+func (t *Task) IsValid(db *sqlx.DB) *core.TYPoc {
+	if t.Resume == "" {
+		return core.NewModelError("Task.IsValid", "resume", "resume required")
+	}
+
+	if t.ReporterId != 0 && !user.CheckId(t.ReporterId, db) {
+		return core.NewModelError("Task.IsValid", "reporter_id", "invalid reporter")
+	}
+	if t.WorkerId != 0 && !user.CheckId(t.WorkerId, db) {
+		return core.NewModelError("Task.IsValid", "reporter_id", "invalid reporter")
+	}
+
+	return nil
+}
+
+func (t *Task) Populate(db *sqlx.DB) {
+	if t.ReporterId != 0 {
+		t.Reporter = *user.GetOne(t.ReporterId, db)
+	} else {
+		t.Worker = user.User{}
+	}
+	if t.WorkerId != 0 {
+		t.Worker = *user.GetOne(t.WorkerId, db)
+	} else {
+		t.Worker = user.User{}
+	}
+}
+
+// ToJson serializes the bot patch to json.
+func (t *Task) ToJson() []byte {
+	data, err := json.Marshal(t)
+	if err != nil {
+		return nil
+	}
+
+	return data
+}
+
+// BotPatchFromJson deserializes a bot patch from json.
+func TaskFromJson(data io.Reader) *Task {
+	decoder := json.NewDecoder(data)
+	var taskData Task
+	err := decoder.Decode(&taskData)
+	if err != nil {
+		return nil
+	}
+
+	return &taskData
+}
+
+// ToJson serializes the bot patch to json.
+func (ul *TaskList) ToJson() []byte {
+	data, err := json.Marshal(ul)
+	if err != nil {
+		return nil
+	}
+
+	return data
+}
+
+// BotPatchFromJson deserializes a bot patch from json.
+func TaskListFromJson(data io.Reader) *TaskList {
+	decoder := json.NewDecoder(data)
+	var taskList TaskList
+	err := decoder.Decode(&taskList)
+	if err != nil {
+		return nil
+	}
+
+	return &taskList
+}
