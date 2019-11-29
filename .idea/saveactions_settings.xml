@@ -11,5 +11,10 @@
         <option value="rearrange" />
       </set>
     </option>
+    <option name="exclusions">
+      <set>
+        <option value=".*\.proto" />
+      </set>
+    </option>
   </component>
 </project>

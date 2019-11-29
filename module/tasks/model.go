@@ -120,8 +120,8 @@ func TaskFromJson(data io.Reader) *Task {
 }
 
 // ToJson serializes the bot patch to json.
-func (ul *TaskList) ToJson() []byte {
-	data, err := json.Marshal(ul)
+func (tl *TaskList) ToJson() []byte {
+	data, err := json.Marshal(tl)
 	if err != nil {
 		return nil
 	}

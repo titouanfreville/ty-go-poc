@@ -1,8 +1,10 @@
 package main
 
 import (
-	"go_poc/api"
+	"context"
+	"github.com/sirupsen/logrus"
 	"go_poc/core"
+	"go_poc/server"
 )
 
 var (
@@ -10,20 +12,21 @@ var (
 	DbConnectionInfo = &core.DbConnection{}
 	// APIServer api server configuration
 	APIServer = &core.APIServerInfo{}
+	log       = logrus.New()
 )
 
 func getConf(dbSettings *core.DbConnection, serverSetting *core.APIServerInfo) {
 	*dbSettings, *serverSetting = core.InitConfig()
 }
 
-func initAPI() error {
-	if err := api.StartAPI(APIServer.Hostname, APIServer.Port, DbConnectionInfo, APIServer, false); err != nil {
-		return err
-	}
-	return nil
-}
-
 func main() {
+	ctx := context.Background()
 	getConf(DbConnectionInfo, APIServer)
-	initAPI()
+
+	go func() {
+		log.Info("In async run REST")
+		err := server.ServeRest(ctx, APIServer)
+		log.Error(err)
+	}()
+	server.ServeGrpc(ctx, DbConnectionInfo, APIServer)
 }

@@ -33,6 +33,12 @@ func Insert(tsk *Task, db *sqlx.DB) *core.TYPoc {
 		log.Info(exErr)
 		return core.NewDatastoreError("Task.INSERT", "query", exErr.Error())
 	}
+	var id int64
+	if err := db.Get(&id, "SELECT id FROM tasks order by id desc limit 1"); err != nil {
+		return core.NewDatastoreError("Task.INSERT", "get_id", err.Error())
+	}
+
+	tsk.Id = id
 
 	return nil
 }

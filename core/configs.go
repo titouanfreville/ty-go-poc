@@ -23,7 +23,8 @@ type DbConnection struct {
 // APIServerInfo information on API server
 type APIServerInfo struct {
 	Hostname     string
-	Port         string
+	RPCPort      string
+	RESTPort     string
 	JWTSecretKey string
 	LogLevel     string
 }
@@ -41,7 +42,8 @@ func InitConfig() (DbConnection, APIServerInfo) {
 	}
 	APIServer := APIServerInfo{
 		Hostname:     "0.0.0.0",
-		Port:         "3000",
+		RESTPort:     "3000",
+		RPCPort:      "3001",
 		JWTSecretKey: "MagicalTokenIsTheBest",
 	}
 	// Default host for DB in Docker containers
@@ -52,7 +54,7 @@ func InitConfig() (DbConnection, APIServerInfo) {
 	// Get values set in env
 	if apiPort := os.Getenv("API_PORT"); apiPort != "" {
 		log.Print("<><><><> Setting api port \n")
-		APIServer.Port = apiPort
+		APIServer.RESTPort = apiPort
 	}
 	if apiHostname := os.Getenv("API_HOST"); apiHostname != "" {
 		log.Print("<><><><> Setting api hostname \n")
