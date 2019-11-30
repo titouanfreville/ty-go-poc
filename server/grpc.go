@@ -2,7 +2,8 @@ package server
 
 import (
 	"context"
-	v1 "go_poc/api/v1"
+	"go_poc/api/v1/tasks"
+	"go_poc/api/v1/users"
 	"go_poc/core"
 	"log"
 	"net"
@@ -19,9 +20,10 @@ func ServeGrpc(ctx context.Context, dbConnectionInfo *core.DbConnection, apiServ
 		return err
 	}
 
-	// register service
+	// register services
 	server := grpc.NewServer()
-	v1.RegisterToDoServiceServer(server, v1.NewToDoServiceServer(*dbConnectionInfo))
+	tasks.RegisterToDoServiceServer(server, tasks.NewToDoServiceServer(*dbConnectionInfo))
+	users.RegisterUserServiceServer(server, users.NewUserServiceServer(*dbConnectionInfo))
 
 	// graceful shutdown
 	c := make(chan os.Signal, 1)

@@ -1,8 +1,7 @@
-package v1
+package tasks
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"go_poc/core"
 	"go_poc/module/tasks"
 	"google.golang.org/grpc/codes"
@@ -12,10 +11,6 @@ import (
 const (
 	// apiVersion is version of API is provided by server
 	apiVersion = "v1"
-)
-
-var (
-	log = logrus.New()
 )
 
 // toDoServiceServer is implementation of v1.ToDoServiceServer proto interface

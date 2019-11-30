@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/sirupsen/logrus"
+	"go_poc/api"
 	"go_poc/core"
 	"go_poc/server"
 )
@@ -25,7 +26,7 @@ func main() {
 
 	go func() {
 		log.Info("In async run REST")
-		err := server.ServeRest(ctx, APIServer)
+		err := api.StartAPI(APIServer, false)
 		log.Error(err)
 	}()
 	server.ServeGrpc(ctx, DbConnectionInfo, APIServer)

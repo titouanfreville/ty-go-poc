@@ -1,0 +1,95 @@
+syntax = "proto3";
+package users;
+
+// Task we have to do
+message User {
+    int64 id = 1;
+    string name = 2;
+    string email = 3;
+}
+
+// Request data to create new user task
+message CreateRequest {
+    string api = 1;
+
+    // Task entity to add
+    User user = 2;
+}
+
+// Response that contains data for created user task
+message CreateResponse {
+    string api = 1;
+
+    // ID of created task
+    int64 id = 2;
+}
+
+// Request data to read user task
+message ReadRequest {
+    // API versioning: it is my best practice to specify version explicitly
+    string api = 1;
+
+    // Unique integer identifier of the user task
+    int64 id = 2;
+}
+
+// Contains user task data specified in by ID request
+message ReadResponse {
+    // API versioning: it is my best practice to specify version explicitly
+    string api = 1;
+
+    // Task entity read by ID
+    User user = 2;
+}
+
+// Request data to update user task
+message UpdateRequest {
+    // API versioning: it is my best practice to specify version explicitly
+    string api = 1;
+
+    // Task entity to update
+    User user = 2;
+}
+
+// Contains status of update operation
+message UpdateResponse {
+    // API versioning: it is my best practice to specify version explicitly
+    string api = 1;
+
+    // Contains number of entities have beed updated
+    // Equals 1 in case of succesfull update
+    User user = 2;
+}
+
+// Request data to read all user task
+message ReadAllRequest {
+    // API versioning: it is my best practice to specify version explicitly
+    string api = 1;
+}
+
+// Contains list of all user tasks
+message ReadAllResponse {
+    // API versioning: it is my best practice to specify version explicitly
+    string api = 1;
+
+    // List of all user tasks
+    repeated User users = 2;
+}
+
+// Service to manage list of user tasks
+service UserService {
+    // Create new user task
+    rpc Create (CreateRequest) returns (CreateResponse) {}
+
+    // Read user task
+    rpc Read (ReadRequest) returns (ReadResponse) {}
+
+    // Update user task
+    rpc Update (UpdateRequest) returns (UpdateResponse) {}
+
+    // Delete user task
+    // pc Delete (DeleteRequest) returns (DeleteResponse);
+
+    // Read all user tasks
+    rpc ReadAll (ReadAllRequest) returns (ReadAllResponse){};
+}
