@@ -1,21 +1,20 @@
-package tasks
+package v1
 
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"go_poc/module/tasks"
 	"google.golang.org/grpc"
 	"net/http"
 	"strconv"
 )
 
 var (
-	todoClient ToDoServiceClient
-	log        = logrus.New()
+	todoClient tasks.ToDoServiceClient
 )
 
 func NewToDoGW(router *gin.RouterGroup, grpcConn *grpc.ClientConn) {
-	todoClient = NewToDoServiceClient(grpcConn)
+	todoClient = tasks.NewToDoServiceClient(grpcConn)
 
 	todoGW := router.Group("/tasks")
 	todoGW.GET("", getAllTask)
@@ -30,7 +29,7 @@ func NewToDoGW(router *gin.RouterGroup, grpcConn *grpc.ClientConn) {
 }
 
 func getAllTask(c *gin.Context) {
-	res, err := todoClient.ReadAll(context.Background(), &ReadAllRequest{Api: "v1"})
+	res, err := todoClient.ReadAll(context.Background(), &tasks.ReadAllRequest{Api: "v1"})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -44,7 +43,7 @@ func getSingleTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "ID is not an integer")
 		return
 	}
-	res, err := todoClient.Read(context.Background(), &ReadRequest{Api: "v1", Id: id})
+	res, err := todoClient.Read(context.Background(), &tasks.ReadRequest{Api: "v1", Id: id})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -53,7 +52,7 @@ func getSingleTask(c *gin.Context) {
 }
 
 func newTask(c *gin.Context) {
-	var taskData ToDo
+	var taskData tasks.ToDo
 	if c.ContentType() == "multipart/form-data" {
 		if err := c.Bind(&taskData); err != nil {
 			log.Info(err)
@@ -67,7 +66,7 @@ func newTask(c *gin.Context) {
 		}
 	}
 
-	res, err := todoClient.Create(context.Background(), &CreateRequest{Api: "v1", ToDo: &taskData})
+	res, err := todoClient.Create(context.Background(), &tasks.CreateRequest{Api: "v1", ToDo: &taskData})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -82,7 +81,7 @@ func updateTask(c *gin.Context) {
 		return
 	}
 
-	res, err := todoClient.Read(context.Background(), &ReadRequest{Api: "v1", Id: id})
+	res, err := todoClient.Read(context.Background(), &tasks.ReadRequest{Api: "v1", Id: id})
 	if err != nil {
 		c.JSON(http.StatusNotFound, "Cat not found")
 		return
@@ -101,7 +100,7 @@ func updateTask(c *gin.Context) {
 		}
 	}
 
-	_, err = todoClient.Update(context.Background(), &UpdateRequest{Api: "v1", ToDo: taskData})
+	_, err = todoClient.Update(context.Background(), &tasks.UpdateRequest{Api: "v1", ToDo: taskData})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return

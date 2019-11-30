@@ -10,8 +10,8 @@ var (
 	log = logrus.New()
 )
 
-func GetAll(db *sqlx.DB) *UserList {
-	res := UserList{}
+func GetAll(db *sqlx.DB) *UserModelList {
+	res := UserModelList{}
 	err := db.Select(&res, "SELECT * from users")
 	if err != nil {
 		log.Error(err)
@@ -20,7 +20,7 @@ func GetAll(db *sqlx.DB) *UserList {
 	return &res
 }
 
-func Insert(usr *User, db *sqlx.DB) *core.TYPoc {
+func Insert(usr *UserModel, db *sqlx.DB) *core.TYPoc {
 	if err := usr.IsValid(); err != nil {
 		return err
 	}
@@ -33,8 +33,8 @@ func Insert(usr *User, db *sqlx.DB) *core.TYPoc {
 	return nil
 }
 
-func GetOne(id int64, db *sqlx.DB) *User {
-	user := User{}
+func GetOne(id int64, db *sqlx.DB) *UserModel {
+	user := UserModel{}
 	if err := db.Get(&user, "SELECT * FROM users where id = $1", id); err != nil {
 		log.Error(err.Error())
 		return nil
@@ -43,10 +43,10 @@ func GetOne(id int64, db *sqlx.DB) *User {
 }
 
 func CheckId(id int64, db *sqlx.DB) bool {
-	user := User{}
+	user := UserModel{}
 	if err := db.Get(&user, "SELECT * FROM users where id = $1", id); err != nil {
 		log.Error(err.Error())
 		return false
 	}
-	return user != User{}
+	return user != UserModel{}
 }

@@ -16,15 +16,15 @@ const (
 
 // Task table model
 type Task struct {
-	Id         int64     `form:"-" json:"-" db:"id"`
-	Resume     string    `form:"resume" json:"resume" db:"resume"`
-	Content    string    `form:"content" json:"content" db:"content"`
-	ReporterId int64     `form:"reporter_id" json:"reporter_id" db:"reporter_id"`
-	WorkerId   int64     `form:"worker_id" json:"worker_id" db:"worker_id"`
-	Reporter   user.User `form:"reporter" json:"reporter" db:"-"`
-	Worker     user.User `form:"worker" json:"worker" db:"-"`
-	Status     int64     `form:"-" json:"-" db:"status"`
-	StatusStr  string    `form:"status" json:"status" db:"status"`
+	Id         int64          `form:"-" json:"-" db:"id"`
+	Resume     string         `form:"resume" json:"resume" db:"resume"`
+	Content    string         `form:"content" json:"content" db:"content"`
+	ReporterId int64          `form:"reporter_id" json:"reporter_id" db:"reporter_id"`
+	WorkerId   int64          `form:"worker_id" json:"worker_id" db:"worker_id"`
+	Reporter   user.UserModel `form:"reporter" json:"reporter" db:"-"`
+	Worker     user.UserModel `form:"worker" json:"worker" db:"-"`
+	Status     int64          `form:"-" json:"-" db:"status"`
+	StatusStr  string         `form:"status" json:"status" db:"status"`
 }
 
 // TaskList is a shortcut to a list of Task
@@ -87,12 +87,12 @@ func (t *Task) Populate(db *sqlx.DB) {
 	if t.ReporterId != 0 {
 		t.Reporter = *user.GetOne(t.ReporterId, db)
 	} else {
-		t.Worker = user.User{}
+		t.Worker = user.UserModel{}
 	}
 	if t.WorkerId != 0 {
 		t.Worker = *user.GetOne(t.WorkerId, db)
 	} else {
-		t.Worker = user.User{}
+		t.Worker = user.UserModel{}
 	}
 	t.StatusStr = convertStatus(t.Status).(string)
 }

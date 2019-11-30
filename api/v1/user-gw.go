@@ -1,20 +1,19 @@
-package users
+package v1
 
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"go_poc/module/user"
 	"google.golang.org/grpc"
 	"net/http"
 )
 
 var (
-	userClient UserServiceClient
-	log        = logrus.New()
+	userClient user.UserServiceClient
 )
 
 func NewUserGW(router *gin.RouterGroup, grpcConn *grpc.ClientConn) {
-	userClient = NewUserServiceClient(grpcConn)
+	userClient = user.NewUserServiceClient(grpcConn)
 
 	userGW := router.Group("/users")
 	userGW.GET("", getAll)
@@ -29,7 +28,7 @@ func NewUserGW(router *gin.RouterGroup, grpcConn *grpc.ClientConn) {
 }
 
 func getAll(c *gin.Context) {
-	res, err := userClient.ReadAll(context.Background(), &ReadAllRequest{Api: "v1"})
+	res, err := userClient.ReadAll(context.Background(), &user.ReadAllRequest{Api: "v1"})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -38,7 +37,7 @@ func getAll(c *gin.Context) {
 }
 
 func newUser(c *gin.Context) {
-	var userData User
+	var userData user.User
 	if c.ContentType() == "multipart/form-data" {
 		if err := c.Bind(&userData); err != nil {
 			log.Info(err)
@@ -52,7 +51,7 @@ func newUser(c *gin.Context) {
 			return
 		}
 	}
-	res, err := userClient.Create(context.Background(), &CreateRequest{Api: apiVersion, User: &userData})
+	res, err := userClient.Create(context.Background(), &user.CreateRequest{Api: "v1", User: &userData})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return

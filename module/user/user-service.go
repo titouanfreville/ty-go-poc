@@ -1,9 +1,8 @@
-package users
+package user
 
 import (
 	"context"
 	"go_poc/core"
-	"go_poc/module/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"strconv"
@@ -19,15 +18,15 @@ type userServiceServer struct {
 	dbStore *core.DBStore
 }
 
-func (m User) ToModel() user.User {
-	return user.User{
+func (m User) ToModel() UserModel {
+	return UserModel{
 		Id:    m.Id,
 		Name:  m.Name,
 		Email: m.Email,
 	}
 }
 
-func ModelToUser(u *user.User) User {
+func ModelToUser(u *UserModel) User {
 	return User{
 		Id:    u.Id,
 		Name:  u.Name,
@@ -35,7 +34,7 @@ func ModelToUser(u *user.User) User {
 	}
 }
 
-func ModelToUserList(ul *user.UserList) []*User {
+func ModelToUserList(ul *UserModelList) []*User {
 	res := []*User{}
 	for _, u := range *ul {
 		proto := ModelToUser(u)
@@ -72,7 +71,7 @@ func (s *userServiceServer) Create(ctx context.Context, req *CreateRequest) (*Cr
 	usr := req.User.ToModel()
 
 	// insert ToDo entity data
-	err := user.Insert(&usr, s.dbStore.Db)
+	err := Insert(&usr, s.dbStore.Db)
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to retrieve id for created ToDo-> "+err.Message)
 	}
@@ -91,7 +90,7 @@ func (s *userServiceServer) Update(ctx context.Context, req *UpdateRequest) (*Up
 
 	mUsr := req.User.ToModel()
 
-	err := user.Insert(&mUsr, s.dbStore.Db)
+	err := Insert(&mUsr, s.dbStore.Db)
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to retrieve id for updated ToDo-> "+err.Message)
 	}
@@ -112,7 +111,7 @@ func (s *userServiceServer) Read(ctx context.Context, req *ReadRequest) (*ReadRe
 	}
 
 	// insert ToDo entity data
-	usr := user.GetOne(req.Id, s.dbStore.Db)
+	usr := GetOne(req.Id, s.dbStore.Db)
 	if usr != nil {
 		return nil, status.Error(codes.Unknown, "id not found-> "+strconv.FormatInt(req.Id, 10))
 	}
@@ -131,7 +130,7 @@ func (s *userServiceServer) ReadAll(ctx context.Context, req *ReadAllRequest) (*
 	}
 
 	// insert ToDo entity data
-	usrList := user.GetAll(s.dbStore.Db)
+	usrList := GetAll(s.dbStore.Db)
 	usrResp := ModelToUserList(usrList)
 	return &ReadAllResponse{
 		Api:   apiVersion,

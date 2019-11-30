@@ -3,7 +3,6 @@ package tasks
 import (
 	"context"
 	"go_poc/core"
-	"go_poc/module/tasks"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -18,8 +17,8 @@ type toDoServiceServer struct {
 	dbStore *core.DBStore
 }
 
-func (m ToDo) ToTask() tasks.Task {
-	return tasks.Task{
+func (m ToDo) ToTask() Task {
+	return Task{
 		Id:         m.Id,
 		Resume:     m.Resume,
 		Content:    m.Content,
@@ -29,7 +28,7 @@ func (m ToDo) ToTask() tasks.Task {
 	}
 }
 
-func TaskToToDo(t *tasks.Task) ToDo {
+func TaskToToDo(t *Task) ToDo {
 	return ToDo{
 		Id:         t.Id,
 		Resume:     t.Resume,
@@ -39,7 +38,7 @@ func TaskToToDo(t *tasks.Task) ToDo {
 		Status:     t.StatusStr,
 	}
 }
-func TaskToToDoList(tl *tasks.TaskList) []*ToDo {
+func TaskToToDoList(tl *TaskList) []*ToDo {
 	res := []*ToDo{}
 	for _, t := range *tl {
 		proto := TaskToToDo(t)
@@ -77,7 +76,7 @@ func (s *toDoServiceServer) Create(ctx context.Context, req *CreateRequest) (*Cr
 	task := req.ToDo.ToTask()
 
 	// insert ToDo entity data
-	err := tasks.Insert(&task, s.dbStore.Db)
+	err := Insert(&task, s.dbStore.Db)
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to retrieve id for created ToDo-> "+err.Message)
 	}
@@ -96,7 +95,7 @@ func (s *toDoServiceServer) Read(ctx context.Context, req *ReadRequest) (*ReadRe
 	}
 
 	// query ToDo by ID
-	task := tasks.GetOne(req.Id, s.dbStore.Db)
+	task := GetOne(req.Id, s.dbStore.Db)
 	toDo := TaskToToDo(task)
 	return &ReadResponse{
 		Api:  apiVersion,
@@ -114,12 +113,12 @@ func (s *toDoServiceServer) Update(ctx context.Context, req *UpdateRequest) (*Up
 
 	task := req.ToDo.ToTask()
 	log.Info(task.Id)
-	if !tasks.CheckId(task.Id, s.dbStore.Db) {
+	if !CheckId(task.Id, s.dbStore.Db) {
 		return nil, status.Error(codes.NotFound, "failed to update ToDo-> provided id does not exists")
 	}
 
 	// update ToDo
-	err := tasks.Update(&task, s.dbStore.Db)
+	err := Update(&task, s.dbStore.Db)
 
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to retrieve rows affected value-> "+err.Message)
@@ -176,7 +175,7 @@ func (s *toDoServiceServer) ReadAll(ctx context.Context, req *ReadAllRequest) (*
 	}
 
 	// get ToDo list
-	taskList := tasks.GetAll(s.dbStore.Db)
+	taskList := GetAll(s.dbStore.Db)
 
 	return &ReadAllResponse{
 		Api:   apiVersion,

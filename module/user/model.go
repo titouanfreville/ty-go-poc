@@ -7,17 +7,17 @@ import (
 )
 
 // User table model
-type User struct {
+type UserModel struct {
 	Id    int64  `form:"-" json:"-" sqlParameterName:"id"`
 	Name  string `form:"name" json:"name" sqlParameterName:"name"`
 	Email string `form:"email" json:"email" sqlParameterName:"email"`
 }
 
 // UserList is a shortcut to a list of User
-type UserList []*User
+type UserModelList []*UserModel
 
 // IsValid check if User object is valid
-func (u *User) IsValid() *core.TYPoc {
+func (u *UserModel) IsValid() *core.TYPoc {
 	if u.Name == "" {
 		return core.NewModelError("User.IsValid", "name", "name required")
 	}
@@ -28,7 +28,7 @@ func (u *User) IsValid() *core.TYPoc {
 }
 
 // ToJson serializes the bot patch to json.
-func (u *User) ToJson() []byte {
+func (u *UserModel) ToJson() []byte {
 	data, err := json.Marshal(u)
 	if err != nil {
 		return nil
@@ -50,7 +50,7 @@ func UserFromJson(data io.Reader) *User {
 }
 
 // ToJson serializes the bot patch to json.
-func (ul *UserList) ToJson() []byte {
+func (ul *UserModelList) ToJson() []byte {
 	data, err := json.Marshal(ul)
 	if err != nil {
 		return nil
@@ -60,9 +60,9 @@ func (ul *UserList) ToJson() []byte {
 }
 
 // BotPatchFromJson deserializes a bot patch from json.
-func UserListFromJson(data io.Reader) *UserList {
+func UserListFromJson(data io.Reader) *UserModelList {
 	decoder := json.NewDecoder(data)
-	var userList UserList
+	var userList UserModelList
 	err := decoder.Decode(&userList)
 	if err != nil {
 		return nil
