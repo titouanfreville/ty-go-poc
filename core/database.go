@@ -12,13 +12,13 @@ type DBStore struct {
 	dbName string
 	pass   string
 	host   string
-	port   string
+	port   int
 	Db     *sqlx.DB
 }
 
 func (s *DBStore) connect() bool {
 	connStr := fmt.Sprintf(
-		"sslmode=disable user='%s' password='%s' host='%s' port='%s' dbname='%s'",
+		"sslmode=disable user='%s' password='%s' host='%s' port='%d' dbname='%s'",
 		s.usr, s.pass, s.host, s.port, s.dbName)
 	db, err := sqlx.Open("postgres", connStr)
 	if err != nil {
@@ -30,7 +30,7 @@ func (s *DBStore) connect() bool {
 }
 
 // InitConnection to store
-func (s *DBStore) InitConnection(user string, dbname string, password string, host string, port string) bool {
+func (s *DBStore) InitConnection(user string, dbname string, password string, host string, port int) bool {
 	s.usr = user
 	s.dbName = dbname
 	s.pass = password

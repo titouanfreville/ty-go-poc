@@ -1,0 +1,58 @@
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: berglas-webhook
+  labels:
+    app: berglas-webhook
+    kind: mutator
+
+webhooks:
+  - name: berglas-webhook.cloud.google.com
+    clientConfig:
+      url: https://us-central1-sandbox-259012.cloudfunctions.net/berglas-secrets-webhook
+      caBundle: ""
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: poc-rpc
+  labels:
+    app: poc-rpc-service
+spec:
+  containers:
+    - name: rpc
+      image: eu.gcr.io/sandbox-259012/poc_go_grpc:demo
+      ports:
+        - containerPort: 8081
+      command: ["-v"]
+      env:
+        - name: CONF
+          value: berglas://ty-sb-test-berglas/go_poc_ty?destination=config.yml
+    - name: rest
+      image: eu.gcr.io/sandbox-259012/poc_go_rest:demo
+      ports:
+        - containerPort: 8080
+      command: ["-v"]
+      env:
+        - name: API_PORT
+          value: berglas://ty-sb-test-berglas/go_poc_ty?destination=config.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: res-expose
+  labels:
+    app: poc-rpc-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: 3000
+  selector:
+    app: poc-rpc

@@ -1,7 +1,10 @@
 package core
 
 import (
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 )
@@ -10,23 +13,30 @@ var (
 	log = logrus.New()
 )
 
+// YMLConfig config struct for .yml config file
+type YMLConfig struct {
+	Database DbConnection  `yaml:"database,flow"`
+	Server   APIServerInfo `yaml:"server,flow"`
+	// Others ...
+}
+
 // DbConnection information to connect to DB
 type DbConnection struct {
-	User            string
-	Database        string
-	Password        string
-	Host            string
-	Port            string
-	DefaultTimeZone string
+	User            string `yaml:"user"`
+	Database        string `yaml:"name"`
+	Password        string `yaml:"password"`
+	Host            string `yaml:"host"`
+	Port            int    `yaml:"port"`
+	DefaultTimeZone string `yaml:"tz"`
 }
 
 // APIServerInfo information on API server
 type APIServerInfo struct {
-	Hostname     string
-	RPCPort      string
-	RESTPort     string
-	JWTSecretKey string
-	LogLevel     string
+	Hostname     string `yaml:"host"`
+	RPCPort      int    `yaml:"rpc_port"`
+	RESTPort     int    `yaml:"rest_port"`
+	JWTSecretKey string `yaml:"jwt_sk"`
+	LogLevel     string `yaml:"log_level"`
 }
 
 // InitConfig get configuration for project
@@ -37,15 +47,16 @@ func InitConfig() (DbConnection, APIServerInfo) {
 		Database:        "tankyou_poc",
 		Password:        "tankyou_poc",
 		Host:            "0.0.0.0",
-		Port:            "5432",
+		Port:            5432,
 		DefaultTimeZone: "Europe/Paris",
 	}
 	APIServer := APIServerInfo{
 		Hostname:     "0.0.0.0",
-		RESTPort:     "3000",
-		RPCPort:      "3001",
+		RESTPort:     3000,
+		RPCPort:      3001,
 		JWTSecretKey: "MagicalTokenIsTheBest",
 	}
+
 	// Default host for DB in Docker containers
 	if os.Getenv("ENVTYPE") == "container" {
 		log.Print("<><><><> Setting host to container default \n")
@@ -54,7 +65,10 @@ func InitConfig() (DbConnection, APIServerInfo) {
 	// Get values set in env
 	if apiPort := os.Getenv("API_PORT"); apiPort != "" {
 		log.Print("<><><><> Setting api port \n")
-		APIServer.RESTPort = apiPort
+		restPort, err := strconv.Atoi(apiPort)
+		if err == nil {
+			APIServer.RESTPort = restPort
+		}
 	}
 	if apiHostname := os.Getenv("API_HOST"); apiHostname != "" {
 		log.Print("<><><><> Setting api hostname \n")
@@ -81,7 +95,10 @@ func InitConfig() (DbConnection, APIServerInfo) {
 	}
 	if dbPort := os.Getenv("MYSQL_PORT"); dbPort != "" {
 		log.Print("<><><><> Setting db port \n")
-		dbConnection.Port = dbPort
+		dataBPort, err := strconv.Atoi(dbPort)
+		if err == nil {
+			dbConnection.Port = dataBPort
+		}
 	}
 	if dbHost := os.Getenv("MYSQL_HOST"); dbHost != "" {
 		log.Print("<><><><> Setting db host \n")
@@ -94,4 +111,22 @@ func InitConfig() (DbConnection, APIServerInfo) {
 
 	// Return new configs
 	return dbConnection, APIServer
+}
+
+func InitConfigFromFile(filepath string) (bool, DbConnection, APIServerInfo) {
+	var config YMLConfig
+
+	yamlFile, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		log.Errorf("Couldn't read config file at %s", filepath)
+		return false, DbConnection{}, APIServerInfo{}
+	}
+
+	err = yaml.Unmarshal(yamlFile, &config)
+	if err != nil {
+		log.Errorf("Couldn't read config file at %s", filepath)
+		return false, DbConnection{}, APIServerInfo{}
+	}
+
+	return true, config.Database, config.Server
 }

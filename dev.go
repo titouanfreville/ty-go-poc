@@ -17,7 +17,9 @@ var (
 )
 
 func getConf(dbSettings *core.DbConnection, serverSetting *core.APIServerInfo) {
-	*dbSettings, *serverSetting = core.InitConfig()
+	_, *dbSettings, *serverSetting = core.InitConfigFromFile("config.yml")
+	log.Info(*dbSettings)
+	log.Info(*serverSetting)
 }
 
 func main() {

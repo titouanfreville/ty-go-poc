@@ -141,14 +141,14 @@ ALTER TABLE ONLY public.users
 -- Name: tasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: tankyou_poc
 --
 
-SELECT pg_catalog.setval('public.tasks_id_seq', 1, false);
+SELECT pg_catalog.setval('public.tasks_id_seq', 0, false);
 
 
 --
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: tankyou_poc
 --
 
-SELECT pg_catalog.setval('public.user_id_seq', 2, true);
+SELECT pg_catalog.setval('public.user_id_seq', 0, true);
 
 
 --

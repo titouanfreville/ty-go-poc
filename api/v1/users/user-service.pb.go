@@ -26,9 +26,9 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Task we have to do
 type User struct {
-	Id                   int64    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Email                string   `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Id                   int64    `protobuf:"varint,1,opt,name=id,proto3" form:"id" json:"id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" form:"name" json:"name,omitempty"`
+	Email                string   `protobuf:"bytes,3,opt,name=email,proto3" form:"email" json:"email,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

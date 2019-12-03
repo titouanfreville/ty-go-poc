@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	revision "github.com/appleboy/gin-revision-middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -84,7 +85,8 @@ func initRoute(router *gin.Engine, grpc_conn *grpc.ClientConn) {
 // StartAPI initialise the api with provided host and port.
 func StartAPI(providedAPIServerInfo *core.APIServerInfo, test bool) error {
 	// Init grpc connection
-	conn, err := grpc.Dial(providedAPIServerInfo.Hostname+":"+providedAPIServerInfo.RPCPort, grpc.WithInsecure())
+	log.Info(fmt.Sprintf("%s:%d", providedAPIServerInfo.Hostname, providedAPIServerInfo.RPCPort))
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", providedAPIServerInfo.Hostname, providedAPIServerInfo.RPCPort), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -105,5 +107,5 @@ func StartAPI(providedAPIServerInfo *core.APIServerInfo, test bool) error {
 		return nil
 	}
 
-	return router.Run(providedAPIServerInfo.Hostname + ":" + providedAPIServerInfo.RESTPort)
+	return router.Run(fmt.Sprintf("%s:%d", providedAPIServerInfo.Hostname, providedAPIServerInfo.RESTPort))
 }

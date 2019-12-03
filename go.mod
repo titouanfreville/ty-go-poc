@@ -13,4 +13,5 @@ require (
 	github.com/titouanfreville/go-namedParameterQuery v0.0.0-20191128133304-a6e05370f89b // indirect
 	google.golang.org/genproto v0.0.0-20190927181202-20e1ac93f88c
 	google.golang.org/grpc v1.24.0
+	gopkg.in/yaml.v2 v2.2.3
 )

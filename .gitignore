@@ -212,3 +212,7 @@ data_*/
 
 vendor
 build
+
+*.yml
+go_poc_rcp
+go_poc_rest
