@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -12,6 +13,10 @@ type TYPoc struct {
 	Element string `json:"error-on, omitempty"`
 	Message string `json:"error-message"`
 	Method  string `json:"method"`
+}
+
+func (e *TYPoc) Error() string {
+	return fmt.Sprintf("%s", e.Message)
 }
 
 // NewModelError is used to manage error from Models definitions
@@ -58,8 +63,8 @@ func NewFatalError(from string, element string, message string, method string) *
 }
 
 // ToJSON function take an avatar and tranform it into Json object
-func (ym *TYPoc) ToJSON() string {
+func (e *TYPoc) ToJSON() string {
 	// Error cannot be reached in normal used case as the function can only be call on a valid avatar object who does not contain invalid types nor recursive reference
-	b, _ := json.Marshal(ym)
+	b, _ := json.Marshal(e)
 	return string(b)
 }

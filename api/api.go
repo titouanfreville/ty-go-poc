@@ -1,13 +1,10 @@
 package api
 
 import (
-	"fmt"
 	revision "github.com/appleboy/gin-revision-middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"go_poc/api/v1"
-	"go_poc/core"
-	"google.golang.org/grpc"
+	v1 "go_poc/api/v1"
 	"net/http"
 	"os"
 )
@@ -75,13 +72,14 @@ func basicRoutes(router *gin.Engine) {
 }
 
 // initRoute initialize all routes on correct routers
-func initRoute(router *gin.Engine, grpc_conn *grpc.ClientConn) {
+func initRoute(router *gin.Engine) {
 	initMiddleware(router)
 	basicRoutes(router)
 	v1gr := router.Group("/v1")
-	v1.InitEndpoints(v1gr, grpc_conn)
+	v1.InitEndpoints(v1gr)
 }
 
+/*
 // StartAPI initialise the api with provided host and port.
 func StartAPI(providedAPIServerInfo *core.APIServerInfo, test bool) error {
 	// Init grpc connection
@@ -100,7 +98,7 @@ func StartAPI(providedAPIServerInfo *core.APIServerInfo, test bool) error {
 	admin := router.Group("/admin")
 	admin.Use(dbRequiredMiddleware())
 	admin.Use(Verifier(tokenAuth))
-	admin.Use(Authenticator())*/
+	admin.Use(Authenticator())
 	initRoute(router, conn)
 
 	if test {
@@ -108,4 +106,21 @@ func StartAPI(providedAPIServerInfo *core.APIServerInfo, test bool) error {
 	}
 
 	return router.Run(fmt.Sprintf("%s:%d", providedAPIServerInfo.Hostname, providedAPIServerInfo.RESTPort))
+}
+*/
+
+// GetAPIRouter initialise the api with provided host and port.
+func GetAPIRouter() http.Handler {
+	router := newRouter()
+	log.Out = os.Stderr
+	log.Level = logrus.DebugLevel
+
+	/*initAuth()
+	admin := router.Group("/admin")
+	admin.Use(dbRequiredMiddleware())
+	admin.Use(Verifier(tokenAuth))
+	admin.Use(Authenticator())*/
+	initRoute(router)
+
+	return router
 }

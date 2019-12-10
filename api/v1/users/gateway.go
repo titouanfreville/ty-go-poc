@@ -1,35 +1,49 @@
 package users
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 	"net/http"
+	"strconv"
 )
 
 var (
-	userClient UserServiceClient
-	log        = logrus.New()
+	log     = logrus.New()
+	service UserService
 )
 
-func NewUserGW(router *gin.RouterGroup, grpcConn *grpc.ClientConn) {
-	userClient = NewUserServiceClient(grpcConn)
+func NewGateWay(router *gin.RouterGroup) {
+	rest := "rest"
+	service = NewClient(&rest, nil)
 
 	userGW := router.Group("/users")
 	userGW.GET("", getAll)
 	userGW.POST("", newUser)
 	// Just to make thinks readable
-	/*{
+	{
 		userGWId := userGW.Group("/:id")
 		userGWId.GET("", getSingle)
-		userGWId.PUT("", update)
-		userGWId.PATCH("", update)
-	}*/
+		// userGWId.PUT("", update)
+		// userGWId.PATCH("", update)
+	}
 }
 
 func getAll(c *gin.Context) {
-	res, err := userClient.ReadAll(context.Background(), &ReadAllRequest{Api: "v1"})
+	res, err := service.ReadAll(c, &ReadAllRequest{Api: "v1"})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+func getSingle(c *gin.Context) {
+	id, argErr := strconv.ParseInt(c.Param("id"), 10, 64)
+	if argErr != nil {
+		c.JSON(http.StatusBadRequest, "ID is not an integer")
+		return
+	}
+	res, err := service.Read(c, &ReadRequest{Api: "v1", Id: id})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -52,7 +66,7 @@ func newUser(c *gin.Context) {
 			return
 		}
 	}
-	res, err := userClient.Create(context.Background(), &CreateRequest{Api: apiVersion, User: &userData})
+	res, err := service.Create(c, &CreateRequest{Api: "v1", User: &userData})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return

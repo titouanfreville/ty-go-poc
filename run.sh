@@ -204,7 +204,7 @@ services: all folders in api/VERSION without the trailing plurar s
       file=${file##${base_path}/}
 
       echo -e "${YELLOW}Building: $service${RESET}"
-      if protoc --proto_path="$base_path" --proto_path=third_party --go_out=plugins=grpc:"$base_path" "$file"; then
+      if protoc --proto_path="$base_path:$GOPATH/src" --micro_out="$base_path" --go_out="$base_path" "$file"; then
         echo -e "${GREEN}$service built${RESET}"
       else
         echo -e "${RED}Could not build $service${RESET}"
@@ -216,7 +216,7 @@ services: all folders in api/VERSION without the trailing plurar s
       file="${ser_path}/${service}-service.proto"
 
       echo -e "${YELLOW}Building: $service${RESET}"
-      if protoc --proto_path="$base_path" --proto_path=third_party --go_out=plugins=grpc:"$base_path" "$file"; then
+      if protoc --proto_path="$base_path:$GOPATH/src" --micro_out="$base_path" --go_out="$base_path" "$file"; then
         echo -e "${GREEN}$service built${RESET}"
       else
         echo -e "${RED}Could not build $service${RESET}"
